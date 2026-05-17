@@ -13,13 +13,17 @@ export default function Login() {
   const fazerLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simulação para testarmos quem é Prefeito e quem é Secretário
+    // VERIFICAÇÃO DE CARGOS E ACESSOS
     if (email === "prefeito@pirajui.sp.gov.br" && senha === "123") {
       localStorage.setItem("usuarioCargo", "prefeito");
       router.push("/dashboard");
     } 
     else if (email === "obras@pirajui.sp.gov.br" && senha === "123") {
-      localStorage.setItem("usuarioCargo", "secretario");
+      localStorage.setItem("usuarioCargo", "secretario_obras");
+      router.push("/dashboard");
+    }
+    else if (email === "saude@pirajui.sp.gov.br" && senha === "123") {
+      localStorage.setItem("usuarioCargo", "secretario_saude");
       router.push("/dashboard");
     }
     else {
@@ -30,7 +34,6 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 font-sans">
       
-      {/* Botão de Voltar para o Site */}
       <div className="absolute top-6 left-6">
         <Link href="/" className="text-blue-900 font-medium hover:underline flex items-center gap-2">
           ← Voltar ao Portal
@@ -53,7 +56,6 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="exemplo@pirajui.sp.gov.br"
-                /* Forçando a letra escura com text-slate-900 */
                 className="w-full px-4 py-3 text-slate-900 bg-white rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
                 required
               />
@@ -66,7 +68,6 @@ export default function Login() {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 placeholder="••••••••"
-                /* Forçando a letra escura com text-slate-900 */
                 className="w-full px-4 py-3 text-slate-900 bg-white rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:border-transparent transition"
                 required
               />
