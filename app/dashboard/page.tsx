@@ -1,72 +1,104 @@
-import { 
-  AlertTriangle, 
-  Car, 
-  CalendarDays, 
-  Briefcase, 
-  PackageSearch, 
-  FileText,
-  LogOut,
-  User
-} from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Dashboard() {
-  // Adicionamos a propriedade 'href' em cada módulo para definir a rota
-  const modules = [
-    { name: "Alô Pirajuí (Zeladoria)", href: "/dashboard/zeladoria", icon: AlertTriangle, color: "text-orange-500", bg: "bg-orange-50", desc: "Gestão de buracos, iluminação e limpeza." },
-    { name: "Controle de Frota", href: "/dashboard/frota", icon: Car, color: "text-blue-500", bg: "bg-blue-50", desc: "Combustível, manutenção e rotas." },
-    { name: "Agendamentos", href: "/dashboard/agendamentos", icon: CalendarDays, color: "text-green-500", bg: "bg-green-50", desc: "Postos de saúde e atendimentos." },
-    { name: "Balcão de Empregos", href: "/dashboard/empregos", icon: Briefcase, color: "text-purple-500", bg: "bg-purple-50", desc: "Conexão entre empresas e cidadãos." },
-    { name: "Almoxarifado", href: "/dashboard/almoxarifado", icon: PackageSearch, color: "text-amber-500", bg: "bg-amber-50", desc: "Controle de estoque e requisições." },
-    { name: "Protocolos Internos", href: "/dashboard/protocolos", icon: FileText, color: "text-slate-500", bg: "bg-slate-50", desc: "Ofícios e comunicação sem papel." },
-  ];
+  const router = useRouter();
+  const [cargo, setCargo] = useState<string | null>(null);
+
+  // A MÁGICA DA SEGURANÇA ACONTECE AQUI
+  useEffect(() => {
+    const cargoSalvo = localStorage.getItem("usuarioCargo");
+    
+    // Se a pessoa não tem o crachá (não fez login), é expulsa pra portaria!
+    if (!cargoSalvo) {
+      router.push("/login"); 
+    } else {
+      setCargo(cargoSalvo); // Se tem crachá, guarda quem é a pessoa
+    }
+  }, [router]);
+
+  const fazerLogout = () => {
+    localStorage.removeItem("usuarioCargo"); // Rasga o crachá
+    router.push("/login"); // Manda de volta pro login
+  };
+
+  // Enquanto o sistema lê o crachá, não mostra nada (evita piscar a tela)
+  if (!cargo) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Topbar */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-xl text-blue-700">Pirajuí Digital</span>
-            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">Gestor</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <User size={16} />
-              <span>Jorge Machado</span>
-            </div>
-            <Link href="/" className="text-gray-400 hover:text-red-500 transition-colors" title="Sair">
-              <LogOut size={20} />
-            </Link>
-          </div>
+    <div className="min-h-screen bg-slate-50 font-sans">
+      
+      {/* Topbar - Cabeçalho do Painel */}
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-blue-950">Pirajuí Digital</h1>
+          
+          {/* Etiqueta mostrando quem está logado */}
+          <span className="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+            {cargo === "prefeito" ? "Prefeito(a)" : "Sec. Obras"}
+          </span>
         </div>
+        
+        <button onClick={fazerLogout} className="text-slate-500 hover:text-red-600 transition flex items-center gap-2 text-sm font-bold">
+          Sair do Sistema <span className="text-lg">🚪</span>
+        </button>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Conteúdo Principal */}
+      <main className="max-w-6xl mx-auto p-6 md:p-10">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Visão Geral</h1>
-          <p className="text-gray-600">Selecione o módulo que deseja acessar.</p>
+          <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Visão Geral</h2>
+          <p className="text-slate-500 text-lg">Selecione o módulo que deseja acessar hoje.</p>
         </div>
 
-        {/* Grid de Módulos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {modules.map((mod) => {
-            const Icon = mod.icon;
-            return (
-              <Link 
-                href={mod.href}
-                key={mod.name}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-300 transition-all text-left group block"
-              >
-                <div className={`w-12 h-12 ${mod.bg} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <Icon className={`${mod.color}`} size={24} />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">{mod.name}</h3>
-                <p className="text-sm text-gray-500">{mod.desc}</p>
+          
+          {/* ======= MÓDULOS QUE TODOS PODEM VER ======= */}
+          
+          <Link href="/dashboard/zeladoria" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+             <div className="w-14 h-14 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 group-hover:scale-105 transition">🚧</div>
+             <h3 className="text-xl font-bold text-slate-800 mb-1">Alô Pirajuí (Zeladoria)</h3>
+             <p className="text-sm text-slate-500">Gestão de buracos, iluminação e limpeza.</p>
+          </Link>
+
+          <Link href="/dashboard/frota" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+             <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 group-hover:scale-105 transition">🚐</div>
+             <h3 className="text-xl font-bold text-slate-800 mb-1">Controle de Frota</h3>
+             <p className="text-sm text-slate-500">Combustível, manutenção e rotas.</p>
+          </Link>
+
+          {/* ======= MÓDULOS QUE SÓ O PREFEITO PODE VER ======= */}
+          {cargo === "prefeito" && (
+            <>
+              <Link href="/dashboard/agendamentos" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+                 <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-emerald-100 group-hover:scale-105 transition">🩺</div>
+                 <h3 className="text-xl font-bold text-slate-800 mb-1">Agendamentos</h3>
+                 <p className="text-sm text-slate-500">Postos de saúde e atendimentos.</p>
               </Link>
-            );
-          })}
+
+              <Link href="/dashboard/empregos" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+                 <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-purple-100 group-hover:scale-105 transition">💼</div>
+                 <h3 className="text-xl font-bold text-slate-800 mb-1">Balcão de Empregos</h3>
+                 <p className="text-sm text-slate-500">Conexão entre empresas e cidadãos.</p>
+              </Link>
+
+              <Link href="/dashboard/almoxarifado" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+                 <div className="w-14 h-14 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-yellow-100 group-hover:scale-105 transition">📦</div>
+                 <h3 className="text-xl font-bold text-slate-800 mb-1">Almoxarifado</h3>
+                 <p className="text-sm text-slate-500">Controle de estoque e requisições.</p>
+              </Link>
+
+              <Link href="/dashboard/protocolos" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition group">
+                 <div className="w-14 h-14 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center text-3xl mb-4 group-hover:bg-slate-200 group-hover:scale-105 transition">📄</div>
+                 <h3 className="text-xl font-bold text-slate-800 mb-1">Protocolos Internos</h3>
+                 <p className="text-sm text-slate-500">Ofícios e comunicação sem papel.</p>
+              </Link>
+            </>
+          )}
+
         </div>
       </main>
     </div>
